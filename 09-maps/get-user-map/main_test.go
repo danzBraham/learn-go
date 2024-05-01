@@ -1,0 +1,138 @@
+package main
+
+import (
+	"fmt"
+	"testing"
+)
+
+func Test(t *testing.T) {
+	type testCase struct {
+		names        []string
+		phoneNumbers []int
+		expected     map[string]User
+		errString    string
+	}
+	tests := []testCase{
+		{
+			[]string{"Eren", "Armin", "Mikasa"},
+			[]int{14355550987, 98765550987, 18265554567},
+			map[string]User{"Eren": {"Eren", 14355550987}, "Armin": {"Armin", 98765550987}, "Mikasa": {"Mikasa", 18265554567}},
+			"",
+		},
+		{
+			[]string{"Eren", "Armin"},
+			[]int{14355550987, 98765550987, 18265554567},
+			nil,
+			"invalid sizes",
+		},
+	}
+	if withSubmit {
+		tests = append(tests, []testCase{
+			{
+				[]string{"George", "Annie", "Reiner", "Sasha"},
+				[]int{20955559812, 38385550982, 48265554567, 16045559873},
+				map[string]User{"George": {"George", 20955559812}, "Annie": {"Annie", 38385550982}, "Reiner": {"Reiner", 48265554567}, "Sasha": {"Sasha", 16045559873}},
+				"",
+			},
+			{
+				[]string{"George", "Annie", "Reiner"},
+				[]int{20955559812, 38385550982, 48265554567, 16045559873},
+				nil,
+				"invalid sizes",
+			},
+		}...)
+	}
+
+	for _, test := range tests {
+		output, err := getUserMap(test.names, test.phoneNumbers)
+		if test.errString != "" && err == nil {
+			t.Errorf("Test Failed: expected error but got none")
+		} else if test.errString == "" && err != nil {
+			t.Errorf("Test Failed: expected no error but got %v", err)
+		} else if test.errString != "" && err != nil && err.Error() != test.errString {
+			t.Errorf(`
+Test Failed:
+  names: %v
+  phoneNumbers: %v
+  =>
+  expected err: %v
+  actual err: %v
+			`,
+				test.names,
+				test.phoneNumbers,
+				test.errString,
+				err,
+			)
+		} else if !compareMaps(output, test.expected) {
+			t.Errorf(`
+Test Failed:
+  names: %v
+  phoneNumbers: %v
+  =>
+  expected:
+%v
+  actual:
+%v
+`,
+				test.names,
+				test.phoneNumbers,
+				formatMap(test.expected),
+				formatMap(output),
+			)
+		} else if test.errString != "" {
+			fmt.Printf(`
+Test Passed:
+  names: %v
+  phoneNumbers: %v
+  =>
+  expected: %v
+  actual: %v
+			`,
+				test.names,
+				test.phoneNumbers,
+				test.errString,
+				err,
+			)
+		} else {
+			fmt.Printf(`
+Test Passed:
+  names: %v
+  phoneNumbers: %v
+  =>
+  expected:
+%v
+  actual:
+%v
+			`,
+				test.names,
+				test.phoneNumbers,
+				formatMap(test.expected),
+				formatMap(output),
+			)
+		}
+	}
+}
+
+func formatMap(m map[string]User) string {
+	var str string
+	for key, value := range m {
+		str += fmt.Sprintf("  * %s: %v\n", key, value)
+	}
+	return str
+}
+
+func compareMaps(map1, map2 map[string]User) bool {
+	if len(map1) != len(map2) {
+		return false
+	}
+	for key, value1 := range map1 {
+		if value2, exist := map2[key]; !exist || value1 != value2 {
+			return false
+		}
+	}
+	return true
+}
+
+// withSubmit is set at compile time depending
+// on which button is used to run the tests
+var withSubmit = true
