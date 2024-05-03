@@ -35,6 +35,18 @@ func main() {
 	fmt.Println(lambo)
 	lambo.setSpeed(345)
 	fmt.Println(lambo)
+
+	address1 := Addres{"Denpasar", "Bali", "Indonesia"}
+	address2 := &address1
+	address3 := &address1
+
+	address2.City = "Singaraja"
+	address3 = &Addres{"Denpasar", "Bali", "Indonesia"}
+	*address2 = Addres{"Bedugul", "Bali", "Indonesia"}
+
+	fmt.Println(address1)
+	fmt.Println(address2)
+	fmt.Println(address3)
 }
 
 type Car struct {
@@ -50,4 +62,8 @@ Since methods often need to modify their receiver, pointer receivers are more co
 */
 func (c *Car) setSpeed(spd int) {
 	c.Speed = spd
+}
+
+type Addres struct {
+	City, Province, Country string
 }
